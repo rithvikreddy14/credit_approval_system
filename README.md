@@ -156,12 +156,4 @@ Includes loan details and nested JSON for customer details.
 
 ---
 
-### 📄 Instructions to Save as a Markdown File
 
-1. Copy this content and save it as `README.md` in your project directory.
-2. You can also use the following terminal command to create the file:
-   ```bash
-   nano README.md
-   ```
-   Paste the content, save (`Ctrl+O`, `Enter`, `Ctrl+X`), and exit.
-3. Open the `README.md` in VS Code or GitHub to preview formatted output.
