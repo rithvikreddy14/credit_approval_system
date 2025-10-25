@@ -1,0 +1,65 @@
+services:
+  # --------------------
+  # 1. PostgreSQL Database
+  # --------------------
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    networks:
+      - credit_network
+    restart: always
+
+  # --------------------
+  # 2. Redis (for Celery Broker/Backend)
+  # --------------------
+  redis:
+    image: redis:alpine
+    networks:
+      - credit_network
+    restart: always
+  
+  # --------------------
+  # 3. Django Web Application (API Server)
+  # --------------------
+  web:
+    build: .
+    command: bash -c "python manage.py makemigrations core_app && python manage.py migrate --no-input && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - credit_network
+    restart: always
+
+  # --------------------
+  # 4. Celery Worker (for data ingestion and future tasks)
+  # --------------------
+  celery_worker:
+    build: .
+    command: celery -A credit_approval_system worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - credit_network
+    restart: always
+
+volumes:
+  postgres_data:
+
+networks:
+  credit_network:
+    driver: bridge
